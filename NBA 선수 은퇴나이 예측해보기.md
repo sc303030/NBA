@@ -91,3 +91,146 @@ nba_df = pd.DataFrame({
 nba_df.to_csv('./data/nba_df.csv',mode='w',index=False)
 ```
 
+### 분석해보기
+
+#### 필요한 패키지 import
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.pylab as plt
+import datetime 
+%matplotlib inline
+import matplotlib
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+import platform
+import seaborn as sns
+
+import warnings
+warnings.filterwarnings('ignore')
+
+from matplotlib import font_manager, rc
+from matplotlib import style
+
+if platform.system() == 'Darwin':
+    rc('font', family='AppleGothic')
+elif platform.system() == 'Windows':
+    path = "c:/Windows/Fonts/malgun.ttf"
+    font_name = font_manager.FontProperties(fname=path).get_name()
+    rc('font', family=font_name)
+else:
+    print('Unknown system... sorry~~~~') 
+```
+
+#### 파일 불러오기
+
+```python
+nba_retire = pd.read_csv('nba_df.csv')
+nba_all = pd.read_csv('all_seasons.csv')
+nba_injury = pd.read_csv('injuries_2010-2020.csv')
+```
+
+#### 정보 확인 함수
+
+```python
+def info(df):
+    display(df.describe())
+    display(df.info())
+    display(df.isna().sum())
+```
+
+- 비어있는 값이 있는지 어떤 행의 값이 어떤 type인지 확인해본다.
+
+#### EDA
+
+![02](./img/02.jpg)
+
+```python
+nba_all.drop('Unnamed: 0',axis=1,inplace=True)
+```
+
+- 필요없는 행이 있어서 제거
+
+```python
+nba_injury_sum = nba_injury.groupby('Relinquished', as_index=False).agg({'Notes':'count'}).sort_values('Notes',ascending=False).reset_index(drop=True)
+```
+
+- 선수들의 부상 횟수를 묶어서 저장한다.
+
+```python
+nba_player = nba_all.groupby('player_name',as_index=False).agg({'season':'count'}).sort_values('season',ascending=False).reset_index(drop=True)
+```
+
+- 선수들의 선수생활 기간을 저장한다.
+
+```python
+nba_1020_injury = pd.merge(nba_player,nba_injury_sum,left_on='player_name',right_on='Relinquished')
+
+nba_1020_injury.drop('Relinquished',axis=1,inplace=True)
+```
+
+- 부상횟수와 선수생활 파일을 합친다.
+
+```python
+nba_retire_merge = pd.merge(nba_1020_injury, nba_retire,left_on='player_name',right_on='name')
+
+nba_retire_merge.drop('name',axis=1,inplace=True)
+
+nba_retire_merge.columns=['name','year','count','retire_age','retire_season']
+```
+
+- 위에서 만든 파일과 은퇴 파일을 합친다.
+
+```python
+nba_retire_merge.head()
+```
+
+![03](./img/03.jpg)
+
+- 최종적으로 만들어진 파일은 다음과 같다.
+
+```python
+nba_retire_merge.describe()
+```
+
+- 요약해보았다.
+
+![07](./img/07.jpg)
+
+#### 상관관계 구해보기
+
+```python
+def corr(data,text):
+    corr = data.corr(method='pearson')
+    display(corr)
+    style.use('ggplot')
+    plt.title(text)
+    sns.heatmap(data = corr, annot=True, fmt = '.2f', linewidths=.5, cmap='Blues')
+```
+
+```python
+corr(nba_retire_merge,'상관관계')
+```
+
+![05](./img/05.jpg)
+
+![04](./img/04.png)
+
+- 생각처럼 부상횟수가 은퇴에 큰 영향을 미친다고 보기 어려웠다. 오히려 year(리그에서 생활한 기간)이 은퇴나이와 연관이 더 높았다. 
+
+#### 부상 횟수 상위 10명 알아보기
+
+```python
+nba_retire_merge.sort_values('count',ascending=False).head(10).reset_index(drop=True)
+```
+
+![06](./img/06.jpg)
+
+- 드웨인 웨이드는 아직 은퇴하기 아쉬울 정도로 일찍 은퇴한 감이 있었다. 많은 부상에도 불구하고 평균보다 더  많이 뛰었다. 1위와 2위는 챔피언을 경험한 선수들이다. 많은 경기를 뛴 만큼 데미지가 많았을 텐데 현대 의학의 발전덕분일까?
+
