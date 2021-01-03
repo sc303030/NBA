@@ -352,3 +352,14 @@ for i in range(nba_injury_1998.shape[0]):
 
 - `• Elliot Williams` 데이터 앞에 기호와 띄어쓰기가 있어서 정리해주었다. 다른 행도 띄어쓰기를 정리하였다.
 
+```python
+for i in range(nba_injury_1998.shape[0]):
+    data = nba_injury_1998.loc[i,'Notes'].split('with')
+    print(data)
+    if data[0] in  ['placed on IL ','placed on IR ']:
+        nba_injury_1998.loc[i,'Notes2'] = data[1].strip()
+    else:
+        nba_injury_1998.loc[i,'Notes2'] = nba_injury_1998.loc[i,'Notes']
+```
+
+- 부상 앞에 placed on IR with 혹은 placed on IL with 가 있어서 뒤에것만 저장하였다.
