@@ -234,3 +234,121 @@ nba_retire_merge.sort_values('count',ascending=False).head(10).reset_index(drop=
 
 - 드웨인 웨이드는 아직 은퇴하기 아쉬울 정도로 일찍 은퇴한 감이 있었다. 많은 부상에도 불구하고 평균보다 더  많이 뛰었다. 1위와 2위는 챔피언을 경험한 선수들이다. 많은 경기를 뛴 만큼 데미지가 많았을 텐데 현대 의학의 발전덕분일까?
 
+### 부상 정보 다시 크롤링해서 가져오기
+
+- 2010~2020년 사이에 은퇴한 선수들의 데뷔초부터 부상정보를 가져오기 위해 다시 크롤링 하였다.
+  - 기준은 빈스카터의 데뷔 연도 1998년도를 기준으로 가져왔다.
+
+#### 필요한 패키지 import
+
+```python
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+from urllib.error   import HTTPError
+from urllib.error   import URLError
+
+import pandas as pd
+
+from selenium import webdriver
+import time
+path = '../driver/chromedriver.exe'
+driver = webdriver.Chrome(path)
+```
+
+#### 크롤링 함수 만들기
+
+```python
+def craw(start,end):
+    page_list = [ i for i in range(start,end,25)]
+    Date = []
+    Team = []
+    Acquired = []
+    Relinquished = []
+    Notes = []
+    for page in page_list:
+        driver.get('http://www.prosportstransactions.com/basketball/Search/SearchResults.php?Player=&Team=&BeginDate=1998-01-01&EndDate=2020-12-31&ILChkBx=yes&Submit=Search&start='+str(page))
+        page = driver.find_elements_by_css_selector('.datatable')
+        if len(page) != 0:
+            for i in page[0].find_elements_by_tag_name('tbody'):
+                k = i.find_elements_by_tag_name('tr')
+                for data in k:
+                    ll = data.find_elements_by_tag_name('td')
+                    Date.append(ll[0].text)
+                    Team.append(ll[1].text)
+                    Acquired.append(ll[2].text)
+                    Relinquished.append(ll[3].text)
+                    Notes.append(ll[4].text)
+    return   Date,Team, Acquired,Relinquished, Notes
+```
+
+![08](./img/08.png)
+
+- 테이블이 datatable class로 되어있어서 이걸로 tbody와 tr, td로 찾아서 저장하였다.
+
+#### 함수 실행하기
+
+```python
+Date,Team, Acquired,Relinquished, Notes = craw(0,5001)
+Date1,Team1, Acquired1,Relinquished1, Notes1 = craw(5001,10001)
+Date2,Team2, Acquired2,Relinquished2, Notes2 = craw(10001,15001)
+Date3,Team3, Acquired3,Relinquished3, Notes3 = craw(15000,20001)
+Date4,Team4, Acquired4,Relinquished4, Notes4 = craw(20001,25001)
+Date5,Team5, Acquired5,Relinquished5, Notes5 = craw(25001,28526)
+```
+
+- 25개씩  이루어져있어 start, end로 url을 맞춰주었다. 28525를 해버리니 중간에 렉이 걸려서 따로 따로 실행하였다.
+
+#### df로 만들기
+
+```python
+df1 = pd.DataFrame({
+    'Date':Date,
+    'Team' : Team,
+    'Acquired' : Acquired,
+    'Relinquished' : Relinquished,
+    'Notes' : Notes    
+                   })
+```
+
+- 이런 식으로 5개의 df를 만들었다.
+
+```python
+df1.to_csv('df1.csv',mode='w',index=False)
+```
+
+- 혹시 몰라서 csv로 우선 저장하였다.
+
+#### 중복 컬럼 제거하기
+
+```python
+nba_injury_1998 = pd.concat([df1,df2,df3])
+drop_index = list(nba_injury_1998[nba_injury_1998['Date']==' Date'].index)
+nba_injury_1998 = nba_injury_1998.drop(drop_index).reset_index(drop=True)
+```
+
+- 데이터들을 행으로 합치고 중간에 컬럼이 계속 중복으로 들어가서 그것의 인덱스를 찾아서 제거해준다.
+
+#### 정리
+
+```python
+for i in range(nba_injury_1998.shape[0]):
+    if nba_injury_1998.loc[i,'Relinquished'] != '':
+        nba_injury_1998.loc[i,'Relinquished'] = nba_injury_1998.loc[i,'Relinquished'].split('•')[1].strip()
+    if nba_injury_1998.loc[i,'Relinquished'] =='':
+        nba_injury_1998.loc[i,'Relinquished'] = nba_injury_1998.loc[i,'Relinquished']
+    if nba_injury_1998.loc[i,'Acquired'] != '':
+         nba_injury_1998.loc[i,'Acquired'] = nba_injury_1998.loc[i,'Acquired'].split('•')[1].strip()
+    if nba_injury_1998.loc[i,'Acquired'] == '':
+         nba_injury_1998.loc[i,'Acquired'] = nba_injury_1998.loc[i,'Acquired']
+```
+
+- `• Elliot Williams` 데이터 앞에 기호와 띄어쓰기가 있어서 정리해주었다.
+
+```python
+for i in range(nba_injury_1998.shape[0]):
+    nba_injury_1998.loc[i,'Date'] = nba_injury_1998.loc[i,'Date'].strip()
+    nba_injury_1998.loc[i,'Team'] = nba_injury_1998.loc[i,'Team'].strip()
+    nba_injury_1998.loc[i,'Notes'] = nba_injury_1998.loc[i,'Notes'].strip()
+```
+
