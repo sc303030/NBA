@@ -322,12 +322,17 @@ df1.to_csv('df1.csv',mode='w',index=False)
 #### 중복 컬럼 제거하기
 
 ```python
-nba_injury_1998 = pd.concat([df1,df2,df3])
+nba_injury_1998 = pd.concat([df1,df2,df3,df4,df5,df6])
 drop_index = list(nba_injury_1998[nba_injury_1998['Date']==' Date'].index)
 nba_injury_1998 = nba_injury_1998.drop(drop_index).reset_index(drop=True)
+none_Relinquished = list(nba_injury_1998[nba_injury_1998['Relinquished'] ==''].index)
+nba_injury_1998 = nba_injury_1998.drop(none_Relinquished).reset_index(drop=True)
+nba_injury_1998 = nba_injury_1998.drop(['Acquired'],axis=1)  
+nba_injury_1998.to_csv('nba_injury_1998.csv',mode='w',index=False)
 ```
 
 - 데이터들을 행으로 합치고 중간에 컬럼이 계속 중복으로 들어가서 그것의 인덱스를 찾아서 제거해준다.
+- 또한 Relinquished가 비어있는 행을 지우고 Acquired 열도 지운다.
 
 #### 정리
 
@@ -335,20 +340,15 @@ nba_injury_1998 = nba_injury_1998.drop(drop_index).reset_index(drop=True)
 for i in range(nba_injury_1998.shape[0]):
     if nba_injury_1998.loc[i,'Relinquished'] != '':
         nba_injury_1998.loc[i,'Relinquished'] = nba_injury_1998.loc[i,'Relinquished'].split('•')[1].strip()
+        nba_injury_1998.loc[i,'Date'] = nba_injury_1998.loc[i,'Date'].strip()
+        nba_injury_1998.loc[i,'Team'] = nba_injury_1998.loc[i,'Team'].strip()
+        nba_injury_1998.loc[i,'Notes'] = nba_injury_1998.loc[i,'Notes'].strip()
     if nba_injury_1998.loc[i,'Relinquished'] =='':
         nba_injury_1998.loc[i,'Relinquished'] = nba_injury_1998.loc[i,'Relinquished']
-    if nba_injury_1998.loc[i,'Acquired'] != '':
-         nba_injury_1998.loc[i,'Acquired'] = nba_injury_1998.loc[i,'Acquired'].split('•')[1].strip()
-    if nba_injury_1998.loc[i,'Acquired'] == '':
-         nba_injury_1998.loc[i,'Acquired'] = nba_injury_1998.loc[i,'Acquired']
+        nba_injury_1998.loc[i,'Date'] = nba_injury_1998.loc[i,'Date'].strip()
+        nba_injury_1998.loc[i,'Team'] = nba_injury_1998.loc[i,'Team'].strip()
+        nba_injury_1998.loc[i,'Notes'] = nba_injury_1998.loc[i,'Notes'].strip()
 ```
 
-- `• Elliot Williams` 데이터 앞에 기호와 띄어쓰기가 있어서 정리해주었다.
-
-```python
-for i in range(nba_injury_1998.shape[0]):
-    nba_injury_1998.loc[i,'Date'] = nba_injury_1998.loc[i,'Date'].strip()
-    nba_injury_1998.loc[i,'Team'] = nba_injury_1998.loc[i,'Team'].strip()
-    nba_injury_1998.loc[i,'Notes'] = nba_injury_1998.loc[i,'Notes'].strip()
-```
+- `• Elliot Williams` 데이터 앞에 기호와 띄어쓰기가 있어서 정리해주었다. 다른 행도 띄어쓰기를 정리하였다.
 
