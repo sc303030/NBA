@@ -363,3 +363,77 @@ for i in range(nba_injury_1998.shape[0]):
 ```
 
 - 부상 앞에 placed on IR with 혹은 placed on IL with 가 있어서 뒤에것만 저장하였다.
+
+### EDA2
+
+```python
+name_list = nba_retire.groupby(['name']).count().sort_values('age',ascending=False)
+name_list = list(name_list[name_list['age'] == 2].index)
+name_lis
+
+>
+['Keyon Dooling',
+ 'Rasheed Wallace',
+ 'Elton Brand',
+ 'Nazr Mohammed',
+ 'Brandon Roy',
+ 'Nick Collison',
+ 'Boštjan Nachbar']
+```
+
+- 다음의 선수들이 2개씩 있어서 이른 시즌에 있는 것들을 지우기로 하였다.
+
+```python
+index_list = []
+while len(name_list) > 0:
+    cnt = len(name_list)
+    for idx, value in nba_retire.iterrows():
+        if value[0] in name_list:
+            index_list.append(idx)
+            name_list.remove(value[0]) 
+nba_retire = nba_retire.drop(index_list).reset_index(drop=True)
+```
+
+- 정상적으로 지워졌다.
+
+```python
+nba_player = nba_all.groupby('player_name',as_index=False).agg({'season':'count'}).sort_values('season',ascending=False).reset_index(drop=True)
+```
+
+#### 이름 바꿔주기
+
+```python
+nba_01 = pd.merge(nba_retire, nba_player, left_on='name', right_on='player_name',how='left').sort_values('season_y').reset_index(drop=True)
+nba_01 = nba_01.drop(['season_x','player_name'],axis=1).rename({'season_y':'season'},axis=1)
+name_list = ['Rasho Nesterovic','Zydrunas Ilgauskas','Peja Stojakovic','T.J. Ford','Eduardo Najera','Vladimir Stepania','Darko Milicic',
+             'Hedo Turkoglu','Kosta Perovic','Raul Lopez','Andres Nocioni','Primoz Brezec','Bostjan Nachbar','Jiri Welsch',
+            'PJ Hairston','Manu Ginobili','Mike Dunleavy','Mirza Teletovic','Gerald Henderson','Jose Calderon','Kevin Seraphin']
+cnt = 0
+for i in range(155,176):
+    nba_01.loc[i,'name'] = name_list[cnt]
+    cnt += 1
+```
+
+- 은퇴 정보와 player정보를 합쳐서 어떤 선수의 정보가 합쳐지지 않았는지 확인하고 nba_all 원래 파일에 이름을 대조하여 리스트를 만들었다.
+  - 그 다음 해당 리스트의 있는 정보들을 바꾸어주었다.
+
+```python
+nba_02 = pd.merge(nba_01, nba_player, left_on='name', right_on='player_name').drop(['season_x','player_name'],axis=1).rename({'season_y':'season'},axis=1)
+```
+
+- 이름을 바꿔준 파일을 다시 merge하였다.
+
+```python
+nba_injury_sum = nba_injury.groupby('name', as_index=False).agg({'Notes':'count'}).sort_values('Notes',ascending=False).reset_index(drop=True)
+```
+
+- 부상 횟수를 합쳤을 때 이름에 전처리 해야할 것들이 많았다.
+
+#### injury에 있는 이름 바꿔주기
+
+```python
+import re
+re.split('[/)]',nba_injury_sum.loc[0,'name'])
+```
+
+- 이러한 식으로 바꿔주려고 한다.
