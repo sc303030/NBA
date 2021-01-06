@@ -437,3 +437,31 @@ re.split('[/)]',nba_injury_sum.loc[0,'name'])
 ```
 
 - 이러한 식으로 바꿔주려고 한다.
+
+#### 이름 바꿔주기 적용
+
+```python
+import re
+for i in range(nba_injury_sum.shape[0]):
+    for namedata in re.split('[/()]',nba_injury_sum.loc[i,'name']):
+        if namedata.strip() in list(nba_02['name']):
+            print(namedata.strip())
+            nba_injury_sum.loc[i,'name'] = namedata.strip()
+```
+
+- 다음과 같이 특수 부호 있는 부분을 나누고 다시 for를 돌려 나눠진 이름중에 nba_02['name']에 있으면 그 이름을 행의 값으로 저장하였다.
+
+```
+		   name	Notes
+0	Tony Parker	50
+```
+
+- 토니 파거나 여타 다른 것들은 적용이 되었다.
+
+```
+								 name	      Notes
+17	Nene / Nene Hilario / Maybyner Hilario	        29
+28	James Michael McAdoo / James McAdoo (Michael)	26
+```
+
+- 그러니 이렇게 적용 안 된 부분이 있어서 다시 확인하려고 한다.
