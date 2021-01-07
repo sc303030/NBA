@@ -465,3 +465,50 @@ for i in range(nba_injury_sum.shape[0]):
 ```
 
 - 그러니 이렇게 적용 안 된 부분이 있어서 다시 확인하려고 한다.
+
+- 그냥 이대로 진행해도 될 것 같아서 그대로 진행하기로 하였다.
+
+#### NaN값 제거
+
+```python
+nba_injury_merge = pd.merge(nba_02,nba_injury_sum,on='name',how='left').sort_values('Notes',ascending=False).reset_index(drop=True)
+nba_injury_merge.dropna(inplace=True)
+nba_injury_merge.sort_values('season',ascending=False).reset_index(drop=True)
+```
+
+### 다시 상관관계
+
+```python
+corr(nba_injury_merge,'상관관계')
+```
+
+![09](./img/09.jpg)
+
+- 전보다 0.14가 올랐다. 데이터 수를 더 찾은게 도움이 된 듯하다. 그러나 아직도 높은 수치는 아니다.
+
+#### 부상 횟수 상위 10명 상관관계
+
+```python
+top_10 = nba_injury_merge.sort_values('Notes',ascending=False).head(10).reset_index(drop=True)
+corr(top_10,'상관관계')
+```
+
+![10](./img/10.jpg)
+
+- 상관관계가 많이 높아졌다. 상위로 뽑아서 그런지 어느정도 영향을 주나보다.
+
+#### 부상 횟수 상위 15명 상관관계
+
+```python
+top_15 = nba_injury_merge.sort_values('Notes',ascending=False).head(15).reset_index(drop=True)
+corr(top_15,'상관관계')
+```
+
+![11](./img/11.jpg)
+
+- 상위 15명부터 확 떨어진다. 
+
+![12](./img/12.jpg)
+
+- 아마 5,6위 때문에 상위 10명은 높게 나온것 같다. 
+- 그럼 이제 예측을 연구해보자.
