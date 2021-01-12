@@ -363,3 +363,62 @@ draw_decision_tree(criterion_dtc)
 
 - 데이터 인코딩을 추가하여 예측하기 위하여 포지션을 추가하기로 함. 데이터를 추가로 구하기로 함
 - NBA-API를 사용하기로 결정
+
+#### nba-api 설치
+
+```python
+!pip install nba_api
+```
+
+#### 선수 찾기
+
+```python
+from nba_api.stats.static import players
+from nba_api.stats.endpoints import commonplayerinfo,playercareerstats
+
+df = players.find_players_by_first_name("vince")
+```
+
+- 선수의 앞자리로 찾거나 뒷자리로 찾을 수 있다. 다양한 방법이 있다.
+
+![16](./img/16.jpg)
+
+- 그럼 해당하는 선수의 내역이 쫙 나온다. 영서 id를 가지고 찾아보자.
+
+#### id로 찾기
+
+```python
+player_info = commonplayerinfo.CommonPlayerInfo(player_id=1713)
+player = player_info.get_data_frames()
+player
+```
+
+![17](./img/17.jpg)
+
+- 그럼 이렇게 선수 정보를 보여준다. 내가 원하는 포지션이 없어서 다른것도 찾아보았다.
+
+```python
+career = playercareerstats.PlayerCareerStats(player_id='1713')
+game_data = career.get_data_frames()
+game_data[0]
+```
+
+![18](./img/18.jpg)
+
+- 이렇게 찾으면 다양한 정보가 있어서 포지션도 있을 줄 알았는데 없었다. 
+
+```python
+game_data[0].columns
+
+>
+
+Index(['PLAYER_ID', 'SEASON_ID', 'LEAGUE_ID', 'TEAM_ID', 'TEAM_ABBREVIATION',
+       'PLAYER_AGE', 'GP', 'GS', 'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A',
+       'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL',
+       'BLK', 'TOV', 'PF', 'PTS'],
+      dtype='object')
+```
+
+[nba-api 깃허브 링크](https://github.com/swar/nba_api)
+
+- 여기 들어가서 자세하게 더 찾아서 다시 가져와야겠다.
