@@ -107,3 +107,107 @@ nba_injury_merge
 nba_injury_merge.to_csv('nba_injury_merge_position.csv',mode='w',index=False)
 ```
 
+### 포지션 라벨링
+
+#### 필요한 패키지 import
+
+```python
+from sklearn.datasets import load_iris, load_breast_cancer
+from sklearn.tree     import DecisionTreeClassifier
+from sklearn.model_selection import  GridSearchCV,train_test_split
+from sklearn.metrics import accuracy_score
+
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+```
+
+```python
+item_label  = list(injury_df.groupby('position').agg({'position':'count'}).index)
+
+encoder = LabelEncoder()
+encoder.fit(item_label)
+
+digit_label = encoder.transform(item_label)
+print('encoder 결과', digit_label)
+
+print('decoder 결과', encoder.inverse_transform(digit_label))
+
+digit_label = digit_label.reshape(-1,1)
+print(digit_label)
+print(digit_label.shape)
+>
+encoder 결과 [0 1 2 3 4 5 6]
+decoder 결과 ['C' 'C-F' 'F' 'F-C' 'F-G' 'G' 'G-F']
+[[0]
+ [1]
+ [2]
+ [3]
+ [4]
+ [5]
+ [6]]
+(7, 1)
+```
+
+- 이렇게 하면 포지션 영어 순서대로 숫자 라벨링이 적용된다.
+
+```python
+ont_hot_encoder = OneHotEncoder()
+ont_hot_encoder.fit(digit_label)
+ont_hot_label = ont_hot_encoder.transform(digit_label)
+print(ont_hot_label.toarray())
+print(ont_hot_label.shape)
+>
+[[1. 0. 0. 0. 0. 0. 0.]
+ [0. 1. 0. 0. 0. 0. 0.]
+ [0. 0. 1. 0. 0. 0. 0.]
+ [0. 0. 0. 1. 0. 0. 0.]
+ [0. 0. 0. 0. 1. 0. 0.]
+ [0. 0. 0. 0. 0. 1. 0.]
+ [0. 0. 0. 0. 0. 0. 1.]]
+(7, 7)
+```
+
+- 이렇게 하면 행렬로 채워진다.
+
+```python
+pd.get_dummies(injury_df)
+```
+
+![25](./img/25.jpg)
+
+- 선수별로 해당되는 곳만 1이 채워진다. 
+
+### 포지션 추가해서 상관관계 보기
+
+```python
+def posi_digt(x,item_label,digit_label):
+    for idx, value in enumerate(item_label):
+        if x == value:
+            return digit_label[idx][0]
+```
+
+```python
+injury_df['position_digtt'] = injury_df['position'].apply(lambda x:posi_digt(x,item_label,digit_label))
+injury_df.head()
+```
+
+- 새로운 컬럼으로 추가한다.
+
+![26](./img/26.jpg)
+
+```python
+def corr(data,text):
+    corr = data.corr(method='pearson')
+    display(corr)
+    style.use('ggplot')
+    plt.title(text)
+    sns.heatmap(data = corr, annot=True, fmt = '.2f', linewidths=.5, cmap='Blues')
+```
+
+```python
+corr(injury_df,'상관관계')
+```
+
+![27](./img/27.jpg)
+
+- 거의 상관없다고 나온다. 다음에는 파라미터를 수정해서 머신러닝을 돌려보자.
