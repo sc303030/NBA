@@ -211,3 +211,57 @@ corr(injury_df,'상관관계')
 ![27](./img/27.jpg)
 
 - 거의 상관없다고 나온다. 다음에는 파라미터를 수정해서 머신러닝을 돌려보자.
+
+### 변수 추가하기
+
+```python
+nba_all = pd.read_csv('all_seasons.csv').drop('Unnamed: 0',axis=1)
+nba_all.head()
+```
+
+- 기존에 있던 정보들이랑 합쳐보자.
+
+```python
+import math
+# 평균을 구하고 모두 소수 2번째까지만 살리기
+nba_all_group = nba_all.groupby('player_name',as_index=False).mean()
+for i in range(nba_all_group.shape[0]):
+    for i2 in range(len(list(nba_all_group.columns))):
+        if i2 == 0:
+            continue
+        elif i2 == 1:
+            nba_all_group.iloc[i,i2] =  nba_all_group.iloc[i,i2].astype('int64')
+        else:
+            nba_all_group.iloc[i,i2] = round(nba_all_group.iloc[i,i2],2)
+```
+
+- 선수들의 기록을 평균으로 만들어서 합치기로 하였다.
+
+```python
+nba_all_group['age'] = nba_all_group['age'].astype('int64')
+nba_all_group
+```
+
+![28](./img/28.jpg)
+
+```python
+df_merge = pd.merge(injury_df,nba_all_group,left_on='name',right_on='player_name',how='left').drop('age_y',axis=1).rename(columns={'age_x':'age'})
+df_merge
+```
+
+- merge한 후 필요없는 컬럼과 컬럼명을 정리하였다.
+
+![29](./img/29.jpg)
+
+#### 다시 상관관계 돌려보기
+
+```python
+corr(df_merge,'상관관계')
+```
+
+![30](./img/30.jpg)
+
+![31](./img/31.png)
+
+- 은퇴나이랑 가장 연관이 높은건 시즌횟수로 0.72로 대폭 상승하였다. 그 다음에 높은건 gp, net_rating 등이 있다.
+
