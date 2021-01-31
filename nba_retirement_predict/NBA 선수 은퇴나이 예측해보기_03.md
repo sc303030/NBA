@@ -265,3 +265,163 @@ corr(df_merge,'상관관계')
 
 - 은퇴나이랑 가장 연관이 높은건 시즌횟수로 0.72로 대폭 상승하였다. 그 다음에 높은건 gp, net_rating 등이 있다.
 
+### DecisionTreeClassifier하기
+
+#### 필요한 패키지 import
+
+```python
+from sklearn.tree     import DecisionTreeClassifier
+from sklearn.model_selection import cross_val_score, cross_validate
+```
+
+#### 검증해보기
+
+```python
+cvs_dtc = DecisionTreeClassifier(random_state = 200)
+feature = df_merge.drop(['age','name','position','player_name'],axis=1)
+label = df_merge[['age']]
+
+display(feature.head())
+display(label.head())
+
+scoring = cross_val_score(cvs_dtc, feature,label,scoring='accuracy',cv=5 )
+print('교차 검증별 정확도 :',scoring)
+print('평균 검증 정확도 :',np.mean(scoring))
+```
+
+![32](./img/32.jpg)
+
+- 0.16로 아주 낮은 정확도를 보여준다....ㅠㅠ 처음 생각과는 많이 달라지는 결과다.
+
+#### cv=10
+
+```python
+scoring = cross_val_score(cvs_dtc, feature,label,scoring='accuracy',cv=10)
+print('교차 검증별 정확도 :',scoring)
+print('평균 검증 정확도 :',np.mean(scoring))
+
+>
+교차 검증별 정확도 : [0.22222222 0.22222222 0.22222222 0.23529412 0.11764706 0.11764706
+ 0.11764706 0.23529412 0.17647059 0.05882353]
+평균 검증 정확도 : 0.17254901960784313
+```
+
+- 폴더 개수를 늘렸더니 검증도가 살짝 올랐다.
+
+```python
+from sklearn.metrics import accuracy_score
+```
+
+```python
+X_train, X_test , y_train, y_test = train_test_split(feature, 
+                                                     label,
+                                                     test_size=0.2,
+                                                    random_state=200)
+```
+
+- 데이터를 나눈다.
+
+#### 파라미터 수정하기
+
+```python
+gscv_tree = DecisionTreeClassifier()
+params = {'criterion' : ['gini', 'entropy'], 
+          'splitter' : ['random','best'], 
+          'max_depth' : [1,2,3], 
+          'min_samples_split' : [2,3]}
+
+grid_gscv_tree = GridSearchCV(gscv_tree, param_grid = params,cv=10,refit=True )
+
+grid_gscv_tree.fit(X_train, y_train)
+grid_gscv_tree.cv_results_
+score_df = pd.DataFrame(grid_gscv_tree.cv_results_)
+display(score_df[['params', 'mean_test_score', 'rank_test_score','split0_test_score','split1_test_score','split2_test_score']].head(10))
+
+print('최적의 파라미터 : ', grid_gscv_tree.best_params_)
+print('높은 정확도 : ', grid_gscv_tree.best_score_)
+
+estimator = grid_gscv_tree.best_estimator_
+prediction = estimator.predict(X_test)
+
+print('테스트 세트의 정확도 : ', accuracy_score(y_test,prediction))
+y_test['prediction'] = prediction
+display(y_test)
+```
+
+![33](./img/33.jpg)
+
+![34](./img/34.jpg)
+
+- 확실히 파라미터를 수정하니 처음보다 약 9%가 상승하였다.
+
+### 데이터 정규화, 표준화 하기
+
+- 데이터의 범위가 각자 다르기 때문에 스케일링 실시
+
+#### 함수 만들기
+
+```python
+### 데이터 정규화와 표준화하기
+def feture_scaling(df, scaling_strategy, column=None):
+    if column == None:
+        column = [column_name for column_name in df.columns]
+    for column_name in column:
+        if scaling_strategy == "min-max":
+            df[column_name] = ( df[column_name] - df[column_name].min() ) /\
+                            (df[column_name].max() - df[column_name].min()) 
+        elif scaling_strategy == "z-score":
+            df[column_name] = ( df[column_name] - \
+                               df[column_name].mean() ) /\
+                            (df[column_name].std() )
+    return df
+```
+
+````python
+#정규화
+n_df = feture_scaling(df_merge,'min_max',column=['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                                                'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct'])
+#표준화
+f_df = feture_scaling(df_merge,'z-score',column=['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                                                'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct'])
+
+display(n_df.head())
+display(f_df.head())
+````
+
+![35](./img/35.jpg)
+
+### sklearn에 있는 함수로 이용하기
+
+```python
+from sklearn.preprocessing import  StandardScaler, MinMaxScaler
+```
+
+#### 표준화
+
+```python
+std_scaler  = StandardScaler()
+
+df_std = std_scaler.fit(df_merge[['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                             'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct']])\
+                        .transform(df_merge[['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                             'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct']])
+df_std[:5]
+```
+
+![36](./img/36.jpg)
+
+#### 정규화
+
+```python
+minmax_scaler  = MinMaxScaler()
+
+df_minmax  = minmax_scaler.fit(df_merge[['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                             'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct']])\
+                        .transform(df_merge[['age','season','Notes','position_digtt','player_height','player_weight','gp',
+                             'pts','reb','ast','net_rating','oreb_pct','dreb_pct','usg_pct','ts_pct','ast_pct']])
+df_minmax [:5]
+```
+
+![37](./img/37.jpg)
+
+##### 테스트 데이터는 스케일링을 실시해도 트레인 데이터는 하면 안 된다. 트레인 데이터만 다시 스케일링한다.
