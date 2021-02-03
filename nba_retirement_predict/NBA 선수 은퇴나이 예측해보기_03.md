@@ -425,3 +425,86 @@ df_minmax [:5]
 ![37](./img/37.jpg)
 
 ##### 테스트 데이터는 스케일링을 실시해도 트레인 데이터는 하면 안 된다. 트레인 데이터만 다시 스케일링한다.
+
+### 선수 이름 라벨링
+
+```python
+item_label  = list(df_merge.groupby('name').agg({'name':'count'}).index)
+
+encoder = LabelEncoder()
+encoder.fit(item_label)
+
+name_label = encoder.transform(item_label)
+
+name_label = name_label.reshape(-1,1)
+
+def name_digt(x,item_label,digit_label):
+    for idx, value in enumerate(item_label):
+        if x == value:
+            return digit_label[idx][0]
+        
+df_merge['name_digtt'] = df_merge['name'].apply(lambda x:name_digt(x,item_label,name_label))
+df_merge.head()
+
+df_merge_name_none = df_merge.drop(['name','position'],axis=1)
+```
+
+- 우선 선수이름을 라벨링해서 숫자로 바꾼다.
+
+```python
+train_array=df_merge_name_none.loc[0:100,:]
+test_array=df_merge_name_none.loc[101:,:]
+```
+
+##### 테스트 데이터는 스케일링을 실시해도 트레인 데이터는 하면 안 된다. 트레인 데이터만 다시 스케일링한다.
+
+```python
+from sklearn.preprocessing import  StandardScaler, MinMaxScaler
+scaler = MinMaxScaler()
+train_scaler = scaler.fit(train_array).transform(train_array)
+
+test_scaler = scaler.transform(test_array)
+```
+
+```python
+train_scaler
+
+>
+array([[0.6       , 0.8       , 1.        , ..., 0.75      , 0.82352941,
+        0.92307692],
+       [0.86666667, 0.7       , 0.85      , ..., 0.91666667, 0.61764706,
+        0.5739645 ],
+       [0.6       , 0.7       , 0.825     , ..., 0.79166667, 0.73529412,
+        0.26627219],
+       ...,
+       [0.6       , 0.3       , 0.        , ..., 0.70833333, 0.17647059,
+        0.20118343],
+       [0.6       , 0.7       , 0.        , ..., 0.75      , 0.17647059,
+        0.84615385],
+       [0.4       , 0.55      , 0.        , ..., 0.875     , 0.14705882,
+        0.69230769]])
+```
+
+```python
+test_scaler
+
+>
+array([[ 0.53333333,  0.3       ,  0.        , ...,  0.20833333,
+         0.02941176,  0.27218935],
+       [ 0.2       ,  0.1       ,  0.        , ...,  0.41666667,
+         0.64705882,  0.68047337],
+       [ 0.4       ,  0.5       ,  0.        , ...,  0.66666667,
+         0.23529412,  0.63313609],
+       ...,
+       [ 0.73333333,  0.1       , -0.225     , ...,  0.875     ,
+         0.64705882,  0.67455621],
+       [ 0.66666667,  0.1       , -0.225     , ...,  0.45833333,
+         0.32352941,  0.42011834],
+       [ 0.33333333, -0.05      , -0.225     , ...,  0.29166667,
+         0.08823529,  0.94674556]])
+```
+
+- 그러면 범위가 같아진다. testdata를 같이 fit하면 범위가 달라진다.
+
+
+
