@@ -98,3 +98,22 @@ df[(df['out'] == True) | (df['tf'] == True)].shape
 ![40](./img/40.jpg)
 
 - 이렇게 둘다 True인 선수도 있고 아닌 선수도 있다. 저기서 파열인 경우만 분리하자.
+- 아킬레스건염이나 염좌는 tendinitis과 strain으로 표시하고 파열과 완파는 torn과 rupture로 표시한다. 그래서 torn과 rupture이 들어있는 선수들은 1로 준다.
+
+```python
+def yesno2(x):
+    words = x.split(' ')
+    print(words)
+    sum_sum = 0
+    for word in words:
+        if word.upper() in ['ACL', 'PCL', 'ACHILLES'] or word.upper() in['TORN','RUPTURE']:
+            sum_sum += 1
+        if sum_sum >= 2:
+            return True
+            break   
+df['tf2'] = df['Notes2'].apply(lambda x:yesno2(x))
+```
+
+- 우선 해당되는 선수들에 True을 주었다.
+
+![41](./img/41.jpg)
