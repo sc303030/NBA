@@ -1,4 +1,4 @@
-# 아마존 AWS 사용하기
+# 아마존 AWS E2C 스팟인스턴스 사용하기
 
 - 결국 아마존 서버를 사용해서 딥러닝을 사용하기로 결정
 - 시간 단위로 사용하는게 가장 좋을 것 같아서 스팟인스턴스 환경 구축 충
@@ -12,3 +12,39 @@
 - 최대하격은 $0.9이고 처음 입찰가격은 &0.27이었다. 아주 저렴한 비용으로 서버를 받았다.^^
 
 - 그러나 볼륨생성 과정에서 capacity-not-available이라고 나와서 방법을 찾고있다.
+
+- 지역을 서울로 바꾸니 되었다. 아마 인스턴스 신청 과정에서 뭐가 꼬인것 같다.
+
+### mobaxterm과 ssh 연결하기
+
+#### 1. SSH에 입력하기
+
+![12](./img2/12.png)
+
+#### 2. 필요한 정보 입력
+
+![13](./img2/13.png)
+
+1. Remote host에는 퍼플릭 주소를 입력하고 use private key에는 다운받은 ppk파일을 넣는다.
+2.  sepcify에는 다음과 같이 해당되는 것을 입력한다.
+
+```
+인스턴스를 시작하는 데 사용한 AMI의 기본 사용자 이름을 가져옵니다.
+
+Amazon Linux 2 또는 Amazon Linux AMI의 경우 사용자 이름은 ec2-user입니다.
+
+CentOS AMI의 경우 사용자 이름은 centos입니다.
+
+Debian AMI의 경우 사용자 이름은 admin입니다.
+
+Fedora AMI의 경우 사용자 이름은 ec2-user 또는 fedora입니다.
+
+RHEL AMI의 경우 사용자 이름은 ec2-user 또는 root입니다.
+
+SUSE AMI의 경우 사용자 이름은 ec2-user 또는 root입니다.
+
+Ubuntu AMI의 경우 사용자 이름은 ubuntu입니다.
+```
+
+그리고 ok를 누르면 만들어진다.
+
