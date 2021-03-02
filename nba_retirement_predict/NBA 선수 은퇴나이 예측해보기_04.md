@@ -117,3 +117,32 @@ df['tf2'] = df['Notes2'].apply(lambda x:yesno2(x))
 - 우선 해당되는 선수들에 True을 주었다.
 
 ![41](./img/41.jpg)
+
+```python
+def oneOrzero(x):
+    two=0
+    three=0
+    if x['out'] == True:
+        two = 1
+    if  x['tf2'] == True:
+        three = 1
+    print(two, three)    
+    return  pd.Series([two,three])
+df[['outnum','tf2num']] = df[['out','tf2']].apply(oneOrzero,axis=1)
+df
+```
+
+![42](./img/42.jpg)
+
+- 이렇게 해서 해당되는 선수들에게 1의 값을 부여하였다. 이 값을 이제 sum해서 완성하자.
+
+```python
+df_sum = df.groupby('Relinquished',as_index=False).agg({'outnum':'sum','tf2num':'sum'})
+display(df_sum)
+```
+
+![43](./img/43.jpg)
+
+
+
+- 이렇게 sum을하여 몇번 부상당했는지 가중치처럼 적용되었다. LinearRegression로 회귀분석을 해보자.
