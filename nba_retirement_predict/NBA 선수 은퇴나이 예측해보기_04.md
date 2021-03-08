@@ -146,3 +146,84 @@ display(df_sum)
 
 
 - 이렇게 sum을하여 몇번 부상당했는지 가중치처럼 적용되었다. LinearRegression로 회귀분석을 해보자.
+
+### 다른 데이터들과 합치기
+
+```python
+injury_df = pd.read_csv('nba_injury_merge_position.csv')
+injury_df.head()
+
+df_merge1 = pd.merge(df_sum,injury_df,left_on='Relinquished',right_on='name').drop('name',axis=1)
+df_merge1.head()
+
+nba_all = pd.read_csv('all_seasons.csv').drop('Unnamed: 0',axis=1)
+nba_all.head()
+```
+
+```python
+import math
+# 평균을 구하고 모두 소수 2번쨰까지만 살리기
+nba_all_group = nba_all.groupby('player_name',as_index=False).mean()
+for i in range(nba_all_group.shape[0]):
+    for i2 in range(len(list(nba_all_group.columns))):
+        if i2 == 0:
+            continue
+        elif i2 == 1:
+            nba_all_group.iloc[i,i2] =  nba_all_group.iloc[i,i2].astype('int64')
+        else:
+            nba_all_group.iloc[i,i2] = round(nba_all_group.iloc[i,i2],2)
+
+nba_all_group['age'] = nba_all_group['age'].astype('int64')
+nba_all_group.head()
+```
+
+```python
+df_merge = pd.merge(df_merge1,nba_all_group,left_on='Relinquished',right_on='player_name',how='left').\
+drop('age_y',axis=1).rename(columns={'age_x':'age'})
+
+df_merge.drop('player_name',axis=1,inplace=True)
+
+df_merge['Notes'] = df_merge['Notes'].astype(int)
+df_merge.head()
+```
+
+![44](./img/44.jpg)
+
+- 기존에 있던 정보들을 최종적으로 만든 정보들과 합친다.
+
+### 다중회귀 분석 하기
+
+```python
+from sklearn.linear_model import LinearRegression
+
+lr_model = LinearRegression()
+
+print(df_merge.shape)
+df_merge.plot(kind='scatter',x='Notes',y='age',c='red',s=10)
+plt.show()
+
+>
+(157, 19)
+```
+
+![45](./img/45.png)
+
+- 선형관계 확인을  위해서 산점도를 그렸는데 전혀 선형 관계가 보이지 얺는다.
+
+```python
+sns.regplot(x='Notes',y='age',data=df_merge)
+plt.show()
+```
+
+![46](./img/46.png)
+
+- 선이랑 같이 그렸는데 관계가 있는건지 전혀 모르겠다.
+
+```python
+sns.pairplot(df_merge)
+plt.show()
+```
+
+![47](./img/47.png)
+
+- 모든 변수들의 선형관계를 확인해서 독립변수를 선택한다. 그냥 다 해보기로 했다.
