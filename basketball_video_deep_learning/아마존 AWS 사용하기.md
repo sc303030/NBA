@@ -78,12 +78,26 @@ jupyter notebook --ip 0.0.0.0
 - tensorflow를 맞추면 파이썬 버전에서 문제가 발생하고 파이썬에 맞추면 텐서플로우에서 또 다른 에러가 발생하고 좀 더 찾아봐야겠다.
 
 ```
+!pip install -r requirements.txt
 !python setup.py build_ext --inplace
-
-!pip install opencv-python
 
 !pip install tensorflo==1.15.5
 !pip install tensorflow-gpu==1.15.5
 ```
 
 - cudnn에서 또 오류가 나서 더 찾아보고 있다.
+
+![15](./img2/15.jpg)
+
+```
+sudo tar -xzvf cudnn-9.0-linux-x64-v7.0.tgz 
+cd cuda
+sudo cp include/cudnn.h /usr/local/cuda/include
+sudo cp lib64/libcudnn* /usr/local/cuda/lib64
+sudo chmod a+r /usr/local/cuda/lib64/libcudnn*
+cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
+```
+
+- 이번에는 `QFactoryLoader` 에서 오류가 발생했다.
+
+![16](./img2/16.jpg)
