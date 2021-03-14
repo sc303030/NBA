@@ -76,3 +76,14 @@ jupyter notebook --ip 0.0.0.0
 ### 실행에서 해매는 중.....
 
 - tensorflow를 맞추면 파이썬 버전에서 문제가 발생하고 파이썬에 맞추면 텐서플로우에서 또 다른 에러가 발생하고 좀 더 찾아봐야겠다.
+
+```
+!python setup.py build_ext --inplace
+
+!pip install opencv-python
+
+!pip install tensorflo==1.15.5
+!pip install tensorflow-gpu==1.15.5
+```
+
+- cudnn에서 또 오류가 나서 더 찾아보고 있다.
