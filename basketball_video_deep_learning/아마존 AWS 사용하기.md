@@ -90,7 +90,7 @@ jupyter notebook --ip 0.0.0.0
 ![15](./img2/15.jpg)
 
 ```
-sudo tar -xzvf cudnn-9.0-linux-x64-v7.0.tgz 
+sudo tar -xzvf cudnn-9.0-linux-x64-v7.4.2.24.taz
 cd cuda
 sudo cp include/cudnn.h /usr/local/cuda/include
 sudo cp lib64/libcudnn* /usr/local/cuda/lib64
@@ -101,3 +101,5 @@ cat /usr/local/cuda/include/cudnn.h | grep CUDNN_MAJOR -A 2
 - 이번에는 `QFactoryLoader` 에서 오류가 발생했다.
 
 ![16](./img2/16.jpg)
+
+- 주말에 다시 해봐야겠다. 
