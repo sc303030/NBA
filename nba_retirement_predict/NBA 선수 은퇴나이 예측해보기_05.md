@@ -67,3 +67,39 @@ data_pre.head()
 ![48](./img/48.jpg)
 
 - 생각보다는 잘 맞는것 같은데 다른 방법으로 더 자세하게 해보자.
+
+```python
+sns.distplot(y, hist=False, label='answer')
+sns.distplot(y_pred, hist=False, label='guess')
+plt.show()
+```
+
+![49](./img/49.jpg)
+
+- predict로 하면 차이가 얼마 안 난다.
+- tensorflow를 사용해보자.
+
+### 가상환경 하나 만들기
+
+```
+conda create --name 이름 python=3.x
+```
+
+- 가상환경을 만든다.
+
+```
+conda activate 이름
+```
+
+- 가상환경을 실행한다.
+
+```
+conda install jupyter notebook
+conda install tensorflow
+conda install pandas
+conda install numpy
+conda install seaborn
+```
+
+- 필요한 패키지들을 설치한다.
+
