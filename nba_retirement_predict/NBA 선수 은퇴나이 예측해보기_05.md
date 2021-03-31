@@ -103,3 +103,58 @@ conda install seaborn
 
 - 필요한 패키지들을 설치한다.
 
+# Tensorflow Regression
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+print(tf.__version__)
+>
+2.1.0
+```
+
+```python
+df_merge.isna().sum()
+>
+Relinquished     0
+outnum           0
+tf2num           0
+age              0
+season           0
+Notes            0
+position         0
+player_height    0
+player_weight    0
+gp               0
+pts              0
+reb              0
+ast              0
+net_rating       0
+oreb_pct         0
+dreb_pct         0
+usg_pct          0
+ts_pct           0
+ast_pct          0
+dtype: int64
+```
+
+- 결측치 확인 후 진행
+
+```python
+train_set = df_merge.sample(frac=.8, random_state=0)
+test_set = df_merge.drop(train_set.index)
+```
+
+```python
+sns.pairplot(train_set[['Relinquished', 'outnum', 'tf2num', 'age', 'season', 'Notes',
+       'position', 'player_height', 'player_weight', 'gp', 'pts', 'reb', 'ast',
+       'net_rating', 'oreb_pct', 'dreb_pct', 'usg_pct', 'ts_pct', 'ast_pct']], diag_kind='kde')
+```
+
+![50](./img/50.png)
