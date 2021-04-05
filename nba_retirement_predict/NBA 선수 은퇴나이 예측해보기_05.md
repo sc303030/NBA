@@ -158,3 +158,67 @@ sns.pairplot(train_set[['Relinquished', 'outnum', 'tf2num', 'age', 'season', 'No
 ```
 
 ![50](./img/50.png)
+
+````python
+train_state = train_set.describe().T
+train_state
+````
+
+![51](./img/51.jpg)
+
+- train의 요약 정보를 담는다.
+
+```python
+y_train = train_set.pop('age')
+y_test = test_set.pop('age')
+```
+
+- 종속 변수만 따로 담는다.
+
+```python
+def norm(x):
+    return (x - train_state['mean']) / train_state['std']
+
+norm_train_set = norm(train_set)
+norm_test_set = norm(test_set)
+```
+
+- 정규화 실시
+
+```python
+model = keras.Sequential([
+    layers.Dense(50, activation='relu', input_shape=[len(train_set.keys())]),
+    layers.Dense(50, activation='relu'),
+    layers.Dense(1)
+])
+```
+
+- 모델을 만든다.
+
+```python
+optimizer = tf.keras.optimizers.RMSprop()
+model.compile(loss='mse', optimizer = optimizer, metrics=['mae', 'mse'])
+```
+
+- optimizer : 학습을 통해 최적화된 결정계수를 찾아준다.
+
+```python
+model.summary()
+```
+
+![52](./img/52.jpg)
+
+#### class 생성 후 모델 학습
+
+```python
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0:print('')
+        print(',', end='')
+        
+history = model.fit(norm_train_set, y_train, epochs=1000, validation_split=.2, verbose=0, callbacks=[PrintDot()])
+```
+
+![53](./img/53.jpg)
+
+- 다음과 같은 오류가 발생하여 해결하고 넘어가자.
