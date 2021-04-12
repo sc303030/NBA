@@ -222,3 +222,51 @@ history = model.fit(norm_train_set, y_train, epochs=1000, validation_split=.2, v
 ![53](./img/53.jpg)
 
 - 다음과 같은 오류가 발생하여 해결하고 넘어가자.
+
+### 문자로 된 행들 라벨링
+
+```python
+from sklearn.preprocessing import LabelEncoder
+```
+
+#### object인 컬럼만 찾기
+
+```python
+df_merge.info()
+```
+
+![54](./img/54.jpg)
+
+- 여기서 object인 타입들만 숫자로 바꿔준다.
+
+```python
+encoder = LabelEncoder()
+encoder.fit(list(df_merge['Relinquished']))
+digit_label_Relinquished = encoder.transform(df_merge['Relinquished'])
+print(digit_label_Relinquished)
+
+encoder.fit(list(df_merge['position']))
+digit_label_position = encoder.transform(df_merge['position'])
+print(digit_label_position)
+```
+
+![55](./img/55.jpg)
+
+- 다음과 같이 라벨링을 해준다. 함수로 만들어서 하려다가 그냥 2개만 적용하면 돼서 풀어서 적용하였다.
+
+#### 새로운 컬럼으로 넣어주기
+
+```python
+df_merge['Relinquished_digit'] = digit_label_Relinquished
+df_merge['position_digit'] = digit_label_position
+df_merge_renew  = df_merge.drop(['Relinquished','position'],axis=1)
+
+df_merge_renew.head()
+```
+
+![56](./img/56.jpg)
+
+![57](./img/57.jpg)
+
+- 기존에 있던 df에서 문자열을 제거하고 라벨링 된 값을 새로운 컬럼으로 넣었다. 이 데이터로 다시 tenforflow를 시작하자.
+
