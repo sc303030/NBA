@@ -270,3 +270,10 @@ df_merge_renew.head()
 
 - 기존에 있던 df에서 문자열을 제거하고 라벨링 된 값을 새로운 컬럼으로 넣었다. 이 데이터로 다시 tenforflow를 시작하자.
 
+- 인코딩을 변환하고 다음과 같은 코드를 실행하니 위에서 같은 오류가 발생하여 원인을 찾기로 하였다.
+
+```python
+sample_result = model.predict(norm_train_set[:10])
+sample_result
+```
+
