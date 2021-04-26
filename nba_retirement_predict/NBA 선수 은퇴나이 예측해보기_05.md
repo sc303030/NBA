@@ -277,3 +277,20 @@ sample_result = model.predict(norm_train_set[:10])
 sample_result
 ```
 
+#### 수정하기
+
+```python
+train_set = df_merge_renew.sample(frac=.8, random_state=0)
+test_set = df_merge_renew.drop(train_set.index)
+```
+
+- 우선 위에서 새롭게 만든 df가 아니라 기존 df_merge를 사용해서 다시 바꿔주었다. 그리고 
+
+```python
+ary = np.array(norm_train_set)
+
+sample_result = model.predict(norm_train_set[:10])
+sample_result
+```
+
+- 검색해보니 array로 바꿔서 진행하라는 말이 있어서 해봤는데 같은 오류가 발생하여 더 찾아봐야겠다.
