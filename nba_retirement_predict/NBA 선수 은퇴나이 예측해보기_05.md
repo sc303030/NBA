@@ -294,3 +294,32 @@ sample_result
 ```
 
 - 검색해보니 array로 바꿔서 진행하라는 말이 있어서 해봤는데 같은 오류가 발생하여 더 찾아봐야겠다.
+
+```python
+y_train = train_set.drop('age',axis=1)
+y_test = test_set.drop('age',axis=1)
+```
+
+- 여기서 pop을 해버려서 원본 데이터에서 age가 빠져버렸다. 그래서 norm(x)를 했을 때 age가 없어서 NaN이 되었다.
+
+```python
+sample_result = model.predict(norm_train_set[:10])
+sample_result
+```
+
+- 오류를 해결하면 예측 값을 얻을 수 있다.
+
+![58](./img/58.jpg)
+
+```python
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0:print('')
+        print(',', end='')
+        
+history = model.fit(norm_train_set, y_train, epochs=1000, validation_split=.2, verbose=0, callbacks=[PrintDot()])
+```
+
+![59](./img/59.jpg)
+
+- 이번에는 다른오류를 만났다.
