@@ -215,3 +215,89 @@ plt.show()
 - 3살이면 선수들에게는 큰 차이로 느껴진다.
 - 그럼 우선 학습기를 함수나 클래스 형태로 만들어서 test값을 입력받아서 결과값을 출력하는 형태로 구성하자.
 - 리액트로 페이지를 만들어서 배포하고 정확도를 다시 업데이트 하자.
+
+### 클래스 만들기
+
+#### 아킬레스, 십자인대 df 만들기
+
+```python
+class AclAndAchilles:
+    def __init__(self, df):
+        self.df = df
+        self.yes_no_df()
+        self.seasonout_df()
+        self.yes_no2_df()
+        self.one_or_zero_df()
+        
+    # 우선은 ACL과 아킬레스가 들어간  선수 구분
+    def yes_no(x):
+        words = x.split(' ')
+        print(words)
+        for word in words:
+            if word.upper() in ['ACL', 'PCL', 'ACHILLES']:
+                return True
+                break   
+                
+    def yes_no_df(self):
+        self.df['tf'] =  self.df['Notes2'].apply(lambda x:yes_no(x))
+        
+    # 시즌아웃 부상
+    def seasonout(x):
+        words = re.split('\(|\)', x)
+        print(words)
+        for word in words:
+            if word in ['out for season']:
+                return True
+                break
+                
+    def seasonout_df(self):
+        self.df['out']  = self.df['Notes2'].apply(lambda x:seasonout(x))
+            
+    # 횟수 카운트
+    def yes_no2(x):
+        words = x.split(' ')
+        print(words)
+        sum_sum = 0
+        for word in words:
+            if word.upper() in ['ACL', 'PCL', 'ACHILLES'] or word.upper() in['TORN','RUPTURE']:
+                sum_sum += 1
+            if sum_sum >= 2:
+                return True
+                break   
+            
+    def yes_no2_df(self):
+        self.df['tf2'] = self.df['Notes2'].apply(lambda x:yes_no2_df(x))
+        
+    # 아킬레스와 십자인대 부상 전적 여부
+    def one_or_zero(x):
+        two=0
+        three=0
+        if x['out'] == True:
+            two = 1
+        if  x['tf2'] == True:
+            three = 1
+        print(two, three)    
+        return  pd.Series([two,three])
+    
+    def one_or_zero_df(self):
+        self.df[['outnum','tf2num']] = self.df[['out','tf2']].apply(one_or_zero,axis=1)
+        
+    def df1(self):
+        return  self.df.groupby('Relinquished',as_index=False).agg({'outnum':'sum','tf2num':'sum'})
+```
+
+- 기존에 하나씩 썼던 함수들을 클래스로 묶어서 한 번에 실행하려고 한다.
+
+#### 다른 데이터와 합치기
+
+```python
+class injury:
+    def __init__(self, acl_achilles_df, injury_df, nba_all_df):
+        self.acl_achilles_df = acl_achilles_df
+        self.injury_df = injury_df
+        self.nba_all_df = nba_all_df
+        
+    def merge(self):
+        self.df_merge1 = pd.merge(self.acl_achilles_df,self.injury_df,left_on='Relinquished',right_on='name').drop('name',axis=1)
+```
+
