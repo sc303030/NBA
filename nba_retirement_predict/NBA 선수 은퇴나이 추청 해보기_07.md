@@ -100,6 +100,8 @@ class injury:
         self.acl_achilles_df = acl_achilles_df
         self.injury_df = injury_df
         self.nba_all_df = nba_all_df
+        self.merge()
+        self.age_func()
         
     def merge(self):
         self.df_merge1 = pd.merge(self.acl_achilles_df,self.injury_df,left_on='Relinquished',right_on='name').drop('name',axis=1)
@@ -128,5 +130,24 @@ class injury:
         self.df_merge_final.head()
 ```
 
+```python
+injury_df = pd.read_csv('nba_injury_merge_position.csv')
+nba_all = pd.read_csv('all_seasons.csv').drop('Unnamed: 0',axis=1)
+test3 = injury(test2, injury_df, nba_all)
+```
 
+```python
+df_final = test3.final_df()
+df_final.head()
+```
+
+|      |  Relinquished | outnum | tf2num |  age | season | Notes | position | player_height | player_weight |    gp |   pts |  reb |  ast | net_rating | oreb_pct | dreb_pct | usg_pct | ts_pct | ast_pct |
+| ---: | ------------: | -----: | -----: | ---: | -----: | ----: | -------: | ------------: | ------------: | ----: | ----: | ---: | ---: | ---------: | -------: | -------: | ------: | -----: | ------: |
+|    0 |  Aaron Brooks |      0 |      0 |   35 |     10 |     9 |        G |        182.88 |         73.03 | 64.50 |  8.88 | 1.55 | 2.76 |      -3.31 |     0.02 |     0.07 |    0.22 |   0.52 |    0.23 |
+|    1 |    Aaron Gray |      0 |      0 |   30 |      7 |    14 |        C |        213.36 |        122.47 | 45.43 |  3.24 | 3.73 | 0.66 |      -4.73 |     0.13 |     0.23 |    0.15 |   0.53 |    0.09 |
+|    2 | Adam Morrison |      1 |      1 |   29 |      3 |     8 |        F |        203.20 |         92.99 | 53.67 |  6.07 | 1.80 | 1.17 |      -7.83 |     0.03 |     0.10 |    0.19 |   0.44 |    0.11 |
+|    3 |  Adonal Foyle |      1 |      0 |   35 |     12 |    18 |        C |        208.28 |        118.88 | 61.08 |  3.78 | 4.48 | 0.44 |      -4.40 |     0.11 |     0.19 |    0.13 |   0.50 |    0.04 |
+|    4 | Al Harrington |      0 |      1 |   35 |     16 |    15 |        F |        205.74 |        112.49 | 61.31 | 12.20 | 5.13 | 1.52 |      -1.45 |     0.06 |     0.17 |    0.23 |   0.51 |    0.10 |
+
+- 잘 작동한다.
 
