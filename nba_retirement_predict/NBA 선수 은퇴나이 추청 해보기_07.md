@@ -151,3 +151,60 @@ df_final.head()
 
 - 잘 작동한다.
 
+### Tensorflow 클래스 만들기
+
+#### import
+
+```python
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+print(tf.__version__)
+```
+
+- 필요한 패키지들을 import 한다.
+- 맨 처음에 같이 불러오도록 맨 위에 다시 붙여넣기 한다.
+
+```python
+from sklearn.preprocessing import LabelEncoder
+# object인 컬럼만 찾기
+df_final.info()
+class Encoder_df:
+        def __init__(self, df):
+            self.df = df
+            self.digit_label_Relinquished, self.digit_label_position = self.labelencoder()
+            self.df_new = self.label_add_colums()
+    
+        def labelencoder(self):
+            self.encoder = LabelEncoder()
+            self.encoder.fit(list(self.df['Relinquished']))
+            self.digit_label_Relinquished = self.encoder.transform(self.df['Relinquished'])
+
+            self.encoder.fit(list(self.df['position']))
+            self.digit_label_position = self.encoder.transform(self.df['position'])
+            return self.digit_label_Relinquished, self.digit_label_position
+             
+        def label_add_colums(self):
+             # 새로운 컬럼으로 넣어주기
+            self.df['Relinquished_digit'] = self.digit_label_Relinquished
+            self.df['position_digit'] = self.digit_label_position
+            self.df_new  = self.df.drop(['Relinquished','position'],axis=1)
+            self.df_new.head()
+            return self.df_new
+             
+        def tensorflow(self):
+            self.train_set = self.df_new.sample(frac=.8, random_state=0)
+            self.test_set = self.df_new.drop(self.train_set.index)
+            print(self.test_set)
+```
+
+```python
+tensor = Encoder_df(df_final)
+```
+
+- 중간까지 했을 때 잘 작동한다.
