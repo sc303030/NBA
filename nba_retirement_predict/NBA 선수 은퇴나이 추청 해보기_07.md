@@ -208,3 +208,70 @@ tensor = Encoder_df(df_final)
 ```
 
 - 중간까지 했을 때 잘 작동한다.
+
+```python
+class PrintDot(keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs):
+        if epoch % 100 == 0:print('')
+        print(',', end='')
+        
+
+class Tensorflow_df:
+    def __init__(self, train, test):
+        self.train_set = train
+        self.test_set = test
+    
+    def train_df(self):
+        self.train_state = self.train_set.describe()
+        self.train_state.pop('age')
+        self.train_state = self.train_state.T
+        
+    def y_df(self):
+        self.y_train = self.train_set.pop('age')
+        self.y_test = self.test_set.pop('age')
+        
+    @staticmethod
+    def norm(x):
+        return (x - train_state['mean']) / train_state['std']
+
+    def norm_df(self):
+        self.norm_train_set = norm(self.train_set)
+        self.norm_test_set = norm(self.test_set)
+        
+    def model_learn(self, dense_cnt, name):
+        self.model = keras.Sequential([
+            layers.Dense(dense_cnt, activation=name, input_shape=[len(train_set.keys())]),
+            layers.Dense(dense_cnt, activation=name),
+            layers.Dense(1)
+        ])
+
+        optimizer = tf.keras.optimizers.RMSprop()
+        self.model.compile(loss='mse', optimizer = optimizer, metrics=['mae', 'mse'])
+
+        self.model.summary()
+        
+        sample_result = self.model.predict(self.norm_train_set)
+        
+        self.history = self.model.fit(self.norm_train_set, self.y_train, epochs=1000, validation_split=.2, verbose=0, callbacks=[PrintDot()])
+        
+    def mse_print(self):
+        loss, mae, mse = self.model.evaluate(self.norm_test_set, self.y_test,verbose=1)
+        print('평균 절대 오차 : ',mae)
+        
+    def plt_show(self):
+        # 시각화
+        self.y_pred = self.model.predict(self.norm_test_set).flatten()
+        plt.scatter(self.y_test, self.y_pred)
+        plt.xlim([0,plt.xlim()[1]])
+        plt.ylim([0,plt.ylim()[1]])
+        plt.scatter(self.y_test, self.y_pred)
+        _ = plt.plot([-100,100],[-100,100])
+        plt.show()
+    
+    
+    def history_df(self):
+        self.hist = pd.DataFrame(self.history.history)
+        return self.hist
+```
+
+- tensorflow하는 부분만 클래스로 다시 구성하였다.
