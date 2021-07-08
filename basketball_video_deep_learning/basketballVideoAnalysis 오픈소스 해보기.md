@@ -41,3 +41,7 @@ team_a_1.jpg,157,165,201,12
 - 다음과 같은 결과값이 csv 파일로 저장됨
 
 - 5명씩 만들어서 진행해보려고 함
+
+- https://www.linkedin.com/pulse/sports-video-analysis-using-machine-learning-stephan-janssen/
+  - 이 프로젝트 주인이 상세하게 알려준 것 
+  - 이거대로 따라해보자
