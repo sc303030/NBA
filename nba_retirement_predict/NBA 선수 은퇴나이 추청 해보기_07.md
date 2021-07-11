@@ -174,11 +174,12 @@ print(tf.__version__)
 from sklearn.preprocessing import LabelEncoder
 # object인 컬럼만 찾기
 df_final.info()
+
 class Encoder_df:
         def __init__(self, df):
             self.df = df
-            self.digit_label_Relinquished, self.digit_label_position = self.labelencoder()
-            self.df_new = self.label_add_colums()
+            self.labelencoder()
+            self.label_add_colums()
     
         def labelencoder(self):
             self.encoder = LabelEncoder()
@@ -187,20 +188,17 @@ class Encoder_df:
 
             self.encoder.fit(list(self.df['position']))
             self.digit_label_position = self.encoder.transform(self.df['position'])
-            return self.digit_label_Relinquished, self.digit_label_position
              
         def label_add_colums(self):
              # 새로운 컬럼으로 넣어주기
             self.df['Relinquished_digit'] = self.digit_label_Relinquished
             self.df['position_digit'] = self.digit_label_position
             self.df_new  = self.df.drop(['Relinquished','position'],axis=1)
-            self.df_new.head()
-            return self.df_new
              
         def tensorflow(self):
             self.train_set = self.df_new.sample(frac=.8, random_state=0)
             self.test_set = self.df_new.drop(self.train_set.index)
-            print(self.test_set)
+            return self.train_set, self.test_set
 ```
 
 ```python
@@ -217,9 +215,17 @@ class PrintDot(keras.callbacks.Callback):
         
 
 class Tensorflow_df:
-    def __init__(self, train, test):
+    def __init__(self, train, test, dense_cnt, name):
         self.train_set = train
         self.test_set = test
+        self.dense_cnt = dense_cnt
+        self.name = name
+        self._sample_result = ''
+        self.train_df()
+        self.y_df()
+        self.norm_df()
+        self.model_learn()
+        self.mse_print()
     
     def train_df(self):
         self.train_state = self.train_set.describe()
@@ -231,17 +237,17 @@ class Tensorflow_df:
         self.y_test = self.test_set.pop('age')
         
     @staticmethod
-    def norm(x):
+    def norm(x, train_state):
         return (x - train_state['mean']) / train_state['std']
 
     def norm_df(self):
-        self.norm_train_set = norm(self.train_set)
-        self.norm_test_set = norm(self.test_set)
+        self.norm_train_set = self.norm(self.train_set, self.train_state)
+        self.norm_test_set = self.norm(self.test_set, self.train_state)
         
-    def model_learn(self, dense_cnt, name):
+    def model_learn(self):
         self.model = keras.Sequential([
-            layers.Dense(dense_cnt, activation=name, input_shape=[len(train_set.keys())]),
-            layers.Dense(dense_cnt, activation=name),
+            layers.Dense(self.dense_cnt, activation=self.name, input_shape=[len(train_set.keys())]),
+            layers.Dense(self.dense_cnt, activation=self.name),
             layers.Dense(1)
         ])
 
@@ -250,7 +256,7 @@ class Tensorflow_df:
 
         self.model.summary()
         
-        sample_result = self.model.predict(self.norm_train_set)
+        self._sample_result = self.model.predict(self.norm_train_set)
         
         self.history = self.model.fit(self.norm_train_set, self.y_train, epochs=1000, validation_split=.2, verbose=0, callbacks=[PrintDot()])
         
@@ -272,6 +278,57 @@ class Tensorflow_df:
     def history_df(self):
         self.hist = pd.DataFrame(self.history.history)
         return self.hist
+    
+    @property
+    def get_result(self):
+        return self._sample_result
 ```
 
 - tensorflow하는 부분만 클래스로 다시 구성하였다.
+
+```python
+labeling = Encoder_df(df_final)
+train_set, test_set = labeling.tensorflow()
+```
+
+```python
+tensor = Tensorflow_df(train_set, test_set, 50, 'relu')
+```
+
+```
+Model: "sequential_2"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_6 (Dense)              (None, 50)                950       
+_________________________________________________________________
+dense_7 (Dense)              (None, 50)                2550      
+_________________________________________________________________
+dense_8 (Dense)              (None, 1)                 51        
+=================================================================
+Total params: 3,551
+Trainable params: 3,551
+Non-trainable params: 0
+_________________________________________________________________
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+31/31 [==============================] - 0s 128us/sample - loss: 31.5719 - mae: 3.9577 - mse: 31.5719
+평균 절대 오차 :  3.957709
+```
+
+- 다음과 같이 잘 실행되었다.
+
+```
+result = tensor.get_result
+print(result)
+```
+
+- 예측 결과를 실제 나이와 비교하는 df를 만들고 이제 리액트로 페이지를 만들어보자.
