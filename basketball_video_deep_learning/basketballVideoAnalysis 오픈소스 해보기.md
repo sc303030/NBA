@@ -45,3 +45,9 @@ team_a_1.jpg,157,165,201,12
 - https://www.linkedin.com/pulse/sports-video-analysis-using-machine-learning-stephan-janssen/
   - 이 프로젝트 주인이 상세하게 알려준 것 
   - 이거대로 따라해보자
+
+### 1번 court_dection
+
+- README에 보면 court_detection1.py보다 opencv를 이용한 코드를 사용하였다. 
+- 그래서 이 함수를 어떻게 써야 하는지 찾아보고 있다.
+  - ​	그냥 코드만 봐서는 어떻게 실행해야 할지 감이 안온다.
