@@ -48,3 +48,10 @@ class Image(TimeStampedModel):
 
 #### 1. 은퇴한 선수 크롤링하여 db에 저장하기
 
+[크롤링\_into_db_방법](https://maximum-curry30.tistory.com/404)
+
+- 위의 방법처럼 하면 아래 사진처럼 데이터가 잘 들어간 것을 볼 수 있다.
+
+![nba_django_01](img/nba_django_01.jpg)
+
+- 이제 선수들의 부상 정보를 삽입하고, 이미지와 등번호도 찾아서 db를 완성하자.
