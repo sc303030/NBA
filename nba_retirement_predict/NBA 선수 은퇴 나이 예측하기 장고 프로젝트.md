@@ -55,3 +55,9 @@ class Image(TimeStampedModel):
 ![nba_django_01](img/nba_django_01.jpg)
 
 - 이제 선수들의 부상 정보를 삽입하고, 이미지와 등번호도 찾아서 db를 완성하자.
+
+### 2. 부상 정보 크롤링 후 csv로 저장하기
+
+[크롤링 방법 보러가기](https://maximum-curry30.tistory.com/405)
+
+- 위의 링크에서 한 것처럼 크롤링 후 데이터를 저장하여 그 데이터를 다듬어서 db를 업데이트 한다.
