@@ -210,5 +210,60 @@ def injury_info_db(self):
 
   ![nba_django_02](img/nba_django_02.jpg)
 
-### 6. injury를 외래키로 player_info db를 다시 설정하기
+### 6. player를 외래키로 injury다시 설정하기
 
+- 생각해보니 player를 기준으로 만들어 가야 한다는 것을 깨달았다.
+
+#### 6-1. player_info 다시 저장하기
+
+```python
+class PlayerIntoDb:
+    player_df: pd.DataFrame
+    position_df: pd.DataFrame
+    injury_df: pd.DataFrame
+    player_position_df: pd.DataFrame = pd.DataFrame({})
+
+    def __init__(self, _player_df, _position_df, _injury_df):
+        merge_player_info_position = _player_df.merge(_position_df, on='name')
+        merge_player_info_position.drop('age_x', axis=1, inplace=True)
+        merge_player_info_position.rename(columns={"age_y": "age"}, inplace=True)
+        merge_player_info_position = merge_player_info_position.astype({"Notes": 'int64'})
+        self.player_df = _player_df
+        self.position_df = _position_df
+        self.injury_df = _injury_df
+        self.player_position_df = merge_player_info_position
+```
+
+```python
+class Player(TimeStampedModel):
+    POSITION_CHOICES = [
+        ('G', 'guard'),
+        ('G-F', 'guard-forward'),
+        ('F', 'forward'),
+        ('F-G', 'forward-guard'),
+        ('F-C', 'forward-center'),
+        ('C', 'center'),
+        ('C-F', 'center-forward')
+    ]
+    name = models.CharField(max_length=100)
+    age = models.IntegerField()
+    uniform_number = models.IntegerField(null=True)
+    position = models.CharField(max_length=3, choices=POSITION_CHOICES, null=True)
+    retire_year = models.IntegerField()
+    season = models.IntegerField()
+    injury_count = models.IntegerField()
+```
+
+```python
+def player_into_db(self):
+	player_info_list = self.csv_to_list(self.player_position_df, self.player_position_df.columns)
+    players = []
+    for name, year, age, season, notes, position in zip(*player_info_list):
+    	players.append(
+                Player(name=name, age=age, retire_year=year, season=season, injury_count=notes, position=position))
+    Player.objects.bulk_create(players)
+```
+
+- player_info랑 position파일을 merge하였고, 해당 df로 player_info에 정보를 추가하였다.
+
+![nba_django_03](img/nba_django_03.jpg)
