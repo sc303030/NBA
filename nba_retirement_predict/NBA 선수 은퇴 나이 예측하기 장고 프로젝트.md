@@ -267,3 +267,57 @@ def player_into_db(self):
 - player_info랑 position파일을 merge하였고, 해당 df로 player_info에 정보를 추가하였다.
 
 ![nba_django_03](img/nba_django_03.jpg)
+
+- 위에서 저장한 player_info를 name을 기준으로 가져와서 외래키로 저장하면 끝난다.
+
+```python
+def injury_info_db(self):
+	injury_df_drop_notes = self.injury_df.drop('Notes', axis=1)
+    merge_df = pd.merge(injury_df_drop_notes, self.player_position_df, left_on="Relinquished", right_on="name",
+                            how='right')
+    injury_to_list = self.csv_to_list(merge_df, ['Date', 'Team', 'name', 'Notes2'])
+    injury_list = []
+    for date, team, name, injury_details in zip(*injury_to_list):
+    	player_obj = Player.objects.filter(name__in=[name])
+        injury_list.append(Injury(date=date, team=team, name=player_obj[0], injury_details=injury_details))
+    Injury.objects.bulk_create(injury_list)
+```
+
+
+![nba_django_04](img/nba_django_04.jpg)
+
+- pythonanywhere에서도 잘 나온다.
+
+
+```json
+
+[
+    {
+        "id": 1,
+        "created": "2022-09-05T20:28:19.013838+09:00",
+        "modified": "2022-09-05T20:28:19.013838+09:00",
+        "name": "Kevin Ollie",
+        "age": 37,
+        "uniform_number": null,
+        "position": "G",
+        "retire_year": 2010,
+        "season": 13,
+        "injury_count": 24
+    },
+    {
+        "id": 2,
+        "created": "2022-09-05T20:28:19.013901+09:00",
+        "modified": "2022-09-05T20:28:19.013901+09:00",
+        "name": "Adonal Foyle",
+        "age": 35,
+        "uniform_number": null,
+        "position": "C",
+        "retire_year": 2010,
+        "season": 12,
+        "injury_count": 12
+    }
+```
+
+- 이제 선수들 사진이랑 유니폼 번호만 업데이트 하면 예측을 제외한 models 구축이 완료된다.
+
+- 나머지는 api를 만들고 프론트에서 작업할 수 있도록 다듬는 작업만 하면 모두 완성이다.
