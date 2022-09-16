@@ -321,3 +321,27 @@ def injury_info_db(self):
 - 이제 선수들 사진이랑 유니폼 번호만 업데이트 하면 예측을 제외한 models 구축이 완료된다.
 
 - 나머지는 api를 만들고 프론트에서 작업할 수 있도록 다듬는 작업만 하면 모두 완성이다.
+
+### 7. 선수들 사진 가져오기
+
+- 홈페이지에서 크롤링 할 때 같이 이미지 주소를 가져와 다운로드 하여 로컬에 저장한다.
+- 그리고 선수들 정보에 이미지 경로를 업데이트 한다.
+
+```python
+player_image = player_image_url[0].get_attribute('src')
+player_image = player_image.replace("260x190", "1040x760")
+headers = { 'User-Agent': 'Mozilla/5.0' }
+with requests.get(player_image,headers=headers) as u:
+        with open(f'C:\\Users\\gh\\nba_predict_django\\crawling\\img\\{names}.png', 'wb') as outfile:
+            time.sleep(1)
+            img = u.content
+            time.sleep(1)
+            outfile.write(img)
+```
+
+- 그럼 크롤링 되면서 같이 이미지를 다운 받을 수 있다.
+
+![nba_django_05](img/nba_django_05.png)
+
+### 8. 선수들 이미지 경로 db에 업데이트 하기
+
