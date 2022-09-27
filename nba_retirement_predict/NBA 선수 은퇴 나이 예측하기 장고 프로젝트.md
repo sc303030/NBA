@@ -345,3 +345,38 @@ with requests.get(player_image,headers=headers) as u:
 
 ### 8. 선수들 이미지 경로 db에 업데이트 하기
 
+- nba_app/static/image에 선수들 사진을 옮긴다.
+- csv_to_db에서 image에는 해당 경로를 입력하면 된다.
+
+```python
+image = models.ImageField(upload_to="image/", default="")
+```
+
+```python
+img = f"static/image/{name}.png"
+players.append(
+	Player(name=name, age=age, retire_year=year, season=season, injury_count=notes, position=position,
+	image=img))
+```
+
+```json
+{
+        "id": 1,
+        "created": "2022-09-27T22:24:27.811555+09:00",
+        "modified": "2022-09-27T22:24:27.811555+09:00",
+        "name": "Kevin Ollie",
+        "age": 37,
+        "uniform_number": null,
+        "position": "G",
+        "retire_year": 2010,
+        "season": 13,
+        "injury_count": 24,
+        "image": "http://127.0.0.1:8000/static/image/Kevin%20Ollie.png"
+},
+```
+
+- 그럼 image에 해당 이미지 경로가 나오고 클릭하면 이미지가 출력된다.
+  - 이제 이 이미지를 react에서도 나오게 하는 작업을 하자.
+
+### 9. pythonanywhere 업데이트하기
+
