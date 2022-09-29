@@ -380,3 +380,11 @@ players.append(
 
 ### 9. pythonanywhere 업데이트하기
 
+- git pull로 프로젝트를 업데이트한다.
+- settings.py에서 충돌 날 텐데 allow_host부분만 다른 곳에 복사하고 settings.py를 resotre로 원복한 후, 다시 allow_host를 수정한다.
+- db와 migration를 삭제하고 다시 migration과 migrate를 한다.
+- `python manage.py collectstatic`로 image파일이 경로를 찾게끔 한다.
+
+- 그럼 다음과 같이 image에 링크가 연결되어 있고 클릭하면 해당 이미지를 보여 준다.
+
+![nba_django_06](img/nba_django_06.jpg)
