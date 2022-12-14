@@ -388,3 +388,9 @@ players.append(
 - 그럼 다음과 같이 image에 링크가 연결되어 있고 클릭하면 해당 이미지를 보여 준다.
 
 ![nba_django_06](img/nba_django_06.jpg)
+
+### 10. 중복된 선수와 현역인 제거하기
+
+- 은퇴 선수 내역 중 이름이 중복으로 들어간 선수와 아직 현역인 선수들이 있었다.
+- 그 선수들을 db에서 제거한다.
+- [삭제방법](https://maximum-curry30.tistory.com/454)
